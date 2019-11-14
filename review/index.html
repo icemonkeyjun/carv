@@ -1,0 +1,224 @@
+<html>
+    <head>
+        <title>명함 복습</title>
+        <meta charset="utf-8">
+        <link rel='icon' href='../images/favicon.png' type='image/x-icon'/ >
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="style.css?ve33333r3">
+    </head>
+    
+    <body>
+        <article>
+            <img id="title" src="Finish.png" style="display: none;">
+            <button class="button" id="returnButton" style="display: none;" onclick="window.location.href = document.location.origin + '/card'"><img src="../images/return.svg" style="height: 20px; margin-right: 10px;">돌아가기</button>
+            <div id="cardParent">
+                <div id="card" onmousedown="cardClicked();setTimeout(function (){mouseDownIsDisabled=false},100)">
+                    <div id="cardArticle">
+                        <div id="cardQuestion">
+                            <div class="cardQuestionHeader">
+                                <span class="round"></span>
+                                <span class="subject"></span>
+                            </div>
+                            <div class="cardQuestionArticle">
+                                <span class="question"></span>
+                                <textarea id="englishInput" rows="1" onmousedown="mouseDownIsDisabled=true;setTimeout(function (){mouseDownIsDisabled=false},100)" oninput="if (this.value.includes('\n')) {checkValue()}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="영어 단어를 입력하세요." hidden autofocus></textarea>
+                                <span id="englishInputText"></span>
+                                <span id="englishInputAnswer"></span>
+                            </div>
+                            <div class="cardQuestionFooter">
+                                <span class="history"></span>
+                            </div>
+                        </div>
+                        <div id="cardAnswer">
+                            <div class="cardQuestionHeader">
+                                <span class="round"></span>
+                                <span class="subject"></span>
+                            </div>
+                            <div class="cardQuestionArticle">
+                                <span class="answer"></span>
+                            </div>
+                            <div class="cardQuestionFooter">
+                                <span class="history">.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="cardButtons">
+                    <div id="cardbuttons2">
+                        <button id="wrongButton" onmousedown="mouseDownIsDisabled=true;setTimeout(function (){mouseDownIsDisabled=false},100)" onclick="wrong()" disable="false">X</button>
+                        <button id="rightButton" onmousedown="mouseDownIsDisabled=true;setTimeout(function (){mouseDownIsDisabled=false},100)" onclick="right()" disable="false">O</button>
+                    </div>
+                </div>
+            </div>
+        </article>
+        <footer>
+            <!--폰트 미리 가져오기 위함-->
+            <span style="font-family: SanMedium"></span>
+        </footer>
+    </body>
+    <script>
+        socket = new WebSocket("ws://125.180.32.159:7404");
+        
+        startTime = new Date();
+        socket.onmessage = function(event) {
+            var recv_data = decodeURIComponent(event.data);
+            var recv_json = eval("(" + recv_data + ")");
+            if (recv_json["type"] === "next_card" && recv_json["index_full"] === "true") {
+                // next_card가 더 이상 없을 때
+                document.getElementById("card").style.display = "none";
+                document.getElementById("cardButtons").style.display = "none";
+                document.getElementById("title").style.display = "block";
+                document.getElementById("returnButton").style.display = "block";
+            } else if (recv_json["type"] === "next_card") {
+                // next_card
+                flip_reset();
+                if (recv_json["reversed"] === "true") {
+                    document.getElementById("englishInput").hidden = false;
+                    document.getElementById("englishInput").focus()
+                } else {
+                    document.getElementById("englishInput").hidden = true;
+                }
+                ele = document.getElementsByClassName("round");
+                for (var i in ele) {
+                    ele[i].textContent = recv_json["round"]
+                }
+                ele = document.getElementsByClassName("subject");
+                for (var i in ele) {
+                    ele[i].textContent = recv_json["subject"] + " (" + String(Math.round(Number(recv_json["elapsed_time"]) / 10) / 100) + "초)";
+                }
+                ele = document.getElementsByClassName("question");
+                for (var i in ele) {
+                    try {
+                        ele[i].textContent = recv_json["a"]
+                        if (ele[i].textContent.length >= 150) {
+                            ele[i].style["font-size"] = "1rem";
+                        } else if (ele[i].textContent.length >= 100) {
+                            ele[i].style["font-size"] = "0.9rem";
+                        } else if (ele[i].textContent.length >= 50) {
+                            ele[i].style["font-size"] = "1rem";
+                        } else if (ele[i].textContent.length >= 30) {
+                            ele[i].style["font-size"] = "1.5rem";
+                        }
+                    } catch {}
+                    
+                }
+                ele = document.getElementsByClassName("history");
+                for (var i in ele) {
+                    ele[i].textContent = recv_json["history"]
+                }
+                ele = document.getElementsByClassName("answer");
+                for (var i in ele) {
+                    try {
+                        ele[i].textContent = recv_json["b"]
+                        if (ele[i].textContent.length >= 150) {
+                            ele[i].style["font-size"] = "0.5rem";
+                        } else if (ele[i].textContent.length >= 100) {
+                            ele[i].style["font-size"] = "0.8rem";
+                        } else if (ele[i].textContent.length >= 50) {
+                            ele[i].style["font-size"] = "1rem";
+                        } else if (ele[i].textContent.length >= 30) {
+                            ele[i].style["font-size"] = "1.5rem";
+                        }
+                    } catch {}
+                }
+                startTime = new Date();
+            }
+        }
+
+        // websocket에 send
+        function snd(str) {
+            socket.send(encodeURIComponent(str));
+        }
+        
+        // 연결되자마자 next_card 요청
+        socket.onopen = function(event) {
+            snd(JSON.stringify({"type": "request_next_card"}));
+        }
+        
+        function flip_reset() {
+            cardQuestion.style.display = "flex";
+            cardAnswer.style.display = "none";
+        }
+        flip_reset();
+        function flip() {
+            cardQuestion = document.getElementById("cardQuestion");
+            cardAnswer = document.getElementById("cardAnswer");
+            if (cardQuestion.style.display === "none") {
+                cardQuestion.style.display = "flex";
+                cardAnswer.style.display = "none";
+            } else if (cardAnswer.style.display === "none") {
+                cardQuestion.style.display = "none";
+                cardAnswer.style.display = "flex";
+            }
+        }
+        
+        function right(ignore) {
+            if (!disableNextButton || ignore) {
+                var endTime = new Date();
+                snd(JSON.stringify({"type": "right", "elapsed_time": endTime - startTime}));
+                snd(JSON.stringify({"type": "request_next_card"}));
+            }
+        }
+        function wrong(ignore) {
+            if (!disableNextButton || ignore) {
+                var endTime = new Date();
+                snd(JSON.stringify({"type": "wrong", "elapsed_time": endTime - startTime}));
+                snd(JSON.stringify({"type": "request_next_card"}));
+            }
+        }
+        
+        mouseDownIsDisabled = false;
+        function cardClicked() {
+            setTimeout(function (){
+                if (!mouseDownIsDisabled) {
+                    flip();
+                }
+            }, 10);
+            
+        }
+            
+        disableNextButton = false;
+        function checkValue() {
+            var input = document.getElementById("englishInput").value.replace("\n", "");
+            var answer = document.getElementsByClassName("answer")[0].textContent;
+            document.getElementById("englishInput").hidden = true;
+            document.getElementById("englishInputText").textContent = input;
+            document.getElementById("englishInputAnswer").textContent = answer;
+            document.getElementById("wrongButton").style.color = "rgb(134, 134, 134)";
+            document.getElementById("rightButton").style.color = "rgb(134, 134, 134)";
+            document.getElementById("wrongButton").setAttribute("disable", "true");
+            document.getElementById("rightButton").setAttribute("disable", "true");
+            disableNextButton = true;
+            if (input === answer) {
+                document.getElementById("englishInputAnswer").style.color = "rgb(121, 206, 36)";
+                setTimeout(function () {
+                    right(true);
+                    document.getElementById("englishInput").value = "";
+                    document.getElementById("englishInputText").textContent = "";
+                    document.getElementById("englishInputAnswer").textContent = "";
+                    document.getElementById("wrongButton").setAttribute("disable", "false");
+                    document.getElementById("rightButton").setAttribute("disable", "false");
+                    document.getElementById("wrongButton").style.color = "rgb(80, 80, 80)";
+                    document.getElementById("rightButton").style.color = "rgb(80, 80, 80)";
+                    disableNextButton = false;
+                }, 800)
+            } else {
+                document.getElementById("englishInputAnswer").style.color = "rgb(211, 107, 112)";
+                setTimeout(function () {
+                    wrong(true);
+                    document.getElementById("englishInput").value = "";
+                    document.getElementById("englishInputText").textContent = "";
+                    document.getElementById("englishInputAnswer").textContent = "";
+                    document.getElementById("wrongButton").setAttribute("disable", "false");
+                    document.getElementById("rightButton").setAttribute("disable", "false");
+                    document.getElementById("wrongButton").style.color = "rgb(80, 80, 80)";
+                    document.getElementById("rightButton").style.color = "rgb(80, 80, 80)";
+                    disableNextButton = false;
+                }, 2500)
+            }
+            
+            
+        }
+    </script>
+    <script type="text/javascript" src="../button-design.min.js"></script>
+</html>

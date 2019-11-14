@@ -1,0 +1,108 @@
+<html>
+    <head>
+        <title>명함 복습</title>
+        <meta charset="utf-8">
+        <link rel='icon' href='images/favicon.png' type='image/x-icon'/ >
+        <link rel="stylesheet" type="text/css" href="style.css?ver3332333331">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="fontello/fontello-74bdc3ba/css/fontello.css">
+        <link rel="stylesheet" type="text/css" href="fontello/fontello-10afb17b/css/fontello.css">
+    </head>
+    
+    <body>
+        <header>
+            <img id="title" src="Title.png">
+        </header>
+        <article>
+            <div id="mainDiv">
+                    <button onclick="window.location.href = 'review'" style="margin: 4px;"><span style="margin: 0;" class="icon-pencil"></span>복습 시작</button>
+<!--                    <button onclick="window.location.href = 'adding'" style="margin: 4px;"><span style="margin: 0;" class="icon-plus"></span>카드 추가</button>-->
+                    <button onclick="window.location.href = 'manage'" style="margin: 4px; display: flex; justify-content: center; align-items: center;"><span style="margin: 0; font-size: 20px; width: 33px; height: 18px;" class="icon-th-thumb"></span>카드 관리</button>
+            </div>
+            <canvas id="BOX"></canvas>
+        </article>
+    </body>
+    <script type="text/javascript" src="button-design.min.js"></script>
+    <script>
+        socket = new WebSocket("ws://125.180.32.159:7404");
+        
+        startTime = new Date();
+        socket.onmessage = function(event) {
+            var recv_data = decodeURIComponent(event.data);
+            var recv_json = eval("(" + recv_data + ")");
+            console.log(recv_json);
+            if (recv_json["type"] === "card_box") {
+                // box_card 응답
+                cardNumbs = recv_json["numbs"];
+                drawCardBox();
+            }
+        }
+
+        // websocket에 send
+        function snd(str) {
+            socket.send(encodeURIComponent(str));
+        }
+        
+        // 연결되자마자 box_card 요청
+        socket.onopen = function(event) {
+            snd(JSON.stringify({"type": "request_card_box"}));
+        }
+        function drawCardBox() {
+            canvas = document.getElementById('BOX');
+            ctx = canvas.getContext('2d');
+    //        ctx.canvas.width  = window.innerWidth;
+    //        ctx.canvas.height = window.innerHeight;
+            ctx.canvas.width  = 245;
+            ctx.canvas.height = 144;
+            var drain = 2; // 크기 배수
+            var pos = [10, 30]; // 복습 상자 위치
+            var size = [14, 23]; // 복습 상자 크기 [한 칸 x 크기, 전체 y 크기]
+            var numbBox = 8; // 상자에 들어갈 칸 개수
+            var outlineW = 0.7 * drain; // 윤곽선 두께
+            var r = 5 * drain; // 상자 밑부분 둥근 정도
+            var barColors = ["rgb(159, 107, 72)", "rgb(96, 141, 67)", "rgb(83, 127, 168)", "rgb(68, 84, 106)", "rgb(173, 140, 35)"]; // 상자 바(칸 사이의 경계)의 색
+    //        var barColors = ["rgb(83, 127, 168)", "rgb(68, 84, 106)", "rgb(89, 89, 89)"]
+            var barColors = ["rgb(80, 80, 80)"]
+            var gradient = 1 * drain; // 카드와 상자 바의 기울기
+            ctx.fillStyle = "rgb(109, 109, 109)";
+            ctx.fillRect(pos[0] - outlineW, pos[1] - outlineW, size[0] * numbBox * drain + 1.4 * drain, size[1] * drain + 1.4 * drain - r);
+            ctx.fillRect(pos[0] - outlineW + r, pos[1] + size[1] * drain + 1.4 * drain - outlineW - r - 1, size[0] * numbBox * drain + 1.4 * drain - r * 2, r + 1);
+            ctx.arc(pos[0] - outlineW + r, pos[1] + size[1] * drain + 1.4 * drain - outlineW - r, r, 0, 2 * Math.PI);
+            ctx.arc(pos[0] + size[0] * drain * numbBox + 0.7 * drain - r, pos[1] + size[1] * drain + 1.4 * drain - outlineW - r, r, 0, 2 * Math.PI);
+            ctx.fill();
+
+            function drawBar(i) {
+                ctx.fillStyle = barColors[(i-1) % barColors.length];
+                ctx.beginPath();
+                ctx.moveTo(pos[0] + i/numbBox * size[0] * numbBox * drain, pos[1] - 0.7 * drain - 7 * drain);
+                ctx.lineTo(pos[0] + i/numbBox * size[0] * numbBox * drain + gradient, pos[1] - 0.7 * drain - 7 * drain);
+                ctx.lineTo(pos[0] + i/numbBox * size[0] * numbBox * drain, pos[1] - 0.7 * drain);
+                ctx.lineTo(pos[0] + i/numbBox * size[0] * numbBox * drain - gradient, pos[1] - 0.7 * drain);
+                ctx.closePath();
+                ctx.fill();
+            }
+            function drawCards(i, cardW) {
+                if (cardW === 0) {
+                    return 0;
+                }
+                ctx.fillStyle = "rgb(173, 173, 173)";
+                ctx.beginPath();
+                ctx.moveTo(pos[0] + i/numbBox * size[0] * numbBox * drain - cardW * drain - 4 + gradient * 2, pos[1] - 0.7 * drain - 7 * drain  - 13 * drain + 7 * drain);
+                ctx.lineTo(pos[0] + i/numbBox * size[0] * numbBox * drain - cardW * drain - 4 + gradient * 3 + cardW * drain, pos[1] - 0.7 * drain - 7 * drain  - 13 * drain + 7 * drain);
+                ctx.lineTo(pos[0] + i/numbBox * size[0] * numbBox * drain - 4, pos[1] - 0.7 * drain);
+                ctx.lineTo(pos[0] + i/numbBox * size[0] * numbBox * drain - cardW * drain - gradient - 4, pos[1] - 0.7 * drain);
+                ctx.closePath();
+                ctx.fill();
+            }
+            for (var i = 1; i < numbBox; i++) {
+                drawBar(i);
+                var cardW = 0//Math.floor(Math.random() * 8);
+                var cardW = cardNumbs[i-1]
+                drawCards(i, cardW);
+            }
+    //        var cardW = Math.floor(Math.random() * 8);
+            var cardW = cardNumbs[i-1]
+            drawCards(i, cardW);
+        }
+    </script>
+</html>

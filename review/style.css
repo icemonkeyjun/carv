@@ -1,0 +1,336 @@
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: gray;
+}
+
+article {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+#title {
+    height: 80px;
+    margin-bottom: 15px;
+}
+#returnButton {
+    margin-left: 20px;
+}
+#cardParent {
+    box-shadow: 5px 5px 15px 0 rgba(50, 50, 50, 0.5);
+    border-radius: 35px;
+/*    border-bottom-left-radius: 0;*/
+/*    border-bottom-right-radius: 0;*/
+}
+#card {
+    display: flex;
+    align-items: center;
+/*    justify-content: center;*/
+    flex-direction: column;
+    width: 300px;
+    height: 415px;
+    border-radius: 35px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: rgb(242, 242, 242);
+}
+#cardQuestion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+#cardAnswer {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+#cardButtons {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    font-size: 0;
+}
+.button {
+    text-transform: uppercase;
+    overflow: hidden;
+    position: relative;
+    outline: none;
+    border: none;
+    
+    width: 150px;
+    height: 60px;
+    padding: 0;
+    margin: 3px;
+    
+    font-size: 25px;
+    font-family: SanBold;
+    
+    color: rgb(80, 80, 80);
+    background-color: rgb(255, 255, 255);
+    border-radius: 10px;
+}
+#cardButtons > div > button {
+/*    position: relative;*/
+/*    top: 132px;*/
+    border: none;
+    width: 150px;
+    height: 60px;
+    font-family: SanBold;
+    color: rgb(80, 80, 80);
+    font-size: 30px;
+}
+#wrongButton {
+    border-bottom-left-radius: 35px;
+    background-color: rgb(223, 145, 149);
+}
+#rightButton {
+    border-bottom-right-radius: 35px;
+    background-color: rgb(171, 230, 112);
+}
+
+.cardQuestionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 300px;
+    height: 100px;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+}
+.cardQuestionArticle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    word-break:break-all;
+    width: 300px;
+    height: 280px;
+}
+.cardQuestionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.round {
+    font-family: SanNormal;
+    font-size: 1.7rem;
+    color: rgba(111, 120, 127, 255);
+}
+.subject {
+    font-family: SanNormal;
+    font-size: 1.7rem;
+    color: rgba(124, 133, 140, 255);
+}
+.question {
+    font-family: SanBold;
+    font-size: 2rem;
+    color: rgba(50, 54, 57, 255);
+    padding: 20px;
+    padding-bottom: 20px;
+}
+.answer {
+    position: relative;
+    top: -16px;
+    font-family: SanBold;
+    font-size: 2rem;
+    color: rgba(22, 147, 186, 255);
+}
+#englishInput {
+    padding-bottom: 20px;
+}
+#englishInputText {
+    font-family: SanMedium;
+    font-size: 1.2rem;
+}
+#englishInputAnswer {
+    font-family: SanMedium;
+    font-size: 1.2rem;
+}
+.history {
+    font-family: SanNormal;
+    font-size: 1.3rem;
+    color: rgba(97, 105, 111, 255);
+}
+textarea {
+    border: 1px solid rgb(221, 221, 221);
+    border-bottom: none;
+    overflow: hidden;
+    resize: none;
+    outline: none !important;
+    font-family: SanLight;
+    color: black;
+    font-size: 0.87rem;
+    height: 1.3rem;
+    width: 185px;
+    padding: 0;
+    margin: 0;
+    height: 2rem;
+    border: 1px solid rgb(200, 200, 200);
+    border-radius: 6px;
+    background-color: rgb(230, 230, 230);
+    overflow: hidden;
+    resize: none;
+    outline: none !important;
+    font-family: SanLight;
+    font-size: 0.87rem;
+    color: black;
+    padding-top: 5px;
+    padding-left: 5px;
+}
+textarea:focus {
+/*    border: 1px solid rgb(255, 255, 255);*/
+/*    background-color: rgb(255, 255, 255);*/
+    border: 1px solid rgb(200, 200, 200);
+    animation-name: textarea_click;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+}
+textarea:not(focus) {
+    animation-name: textarea_unclick;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+}
+textarea::placeholder {
+    color: rgb(180, 180, 180);
+}
+
+button {
+    cursor: pointer;
+    text-transform: uppercase;
+    overflow: hidden;
+    position: relative;
+    outline: none;
+}
+button .ripple {
+    border-radius: 50%;
+    background-color: rgba(180, 180, 180, 0.7);
+    position: absolute;
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+}
+#rightButton .ripple {
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.7);
+    position: absolute;
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+}
+#wrongButton .ripple {
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.7);
+    position: absolute;
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+}
+button[disable="false"]:hover {
+    animation-name: hover_change_color;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+}
+button[disable="false"]:not(hover) {
+    animation-name: nothover_change_color;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+}
+#wrongButton[disable="false"]:hover {
+    animation-name: wrong_hover_change_color;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+}
+#wrongButton[disable="false"]:not(hover) { 
+    animation-name: wrong_nothover_change_color;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+}
+#wrongButton[disable="true"] {
+    cursor: default;
+    background-color: rgb(222, 222, 222);
+}
+#rightButton[disable="false"]:hover {
+    animation-name: right_hover_change_color;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+}
+#rightButton[disable="false"]:not(hover) { 
+    animation-name: right_nothover_change_color;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+}
+#rightButton[disable="true"] {
+    cursor: default;
+    background-color: rgb(222, 222, 222);
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+@keyframes wrong_hover_change_color {
+  from {background-color: rgb(223, 145, 149);}
+  to {background-color: rgb(237, 193, 195);}
+}
+@keyframes wrong_nothover_change_color {
+  from {background-color: rgb(237, 193, 195);}
+  to {background-color: rgb(223, 145, 149);}
+}
+@keyframes right_hover_change_color {
+  from {background-color: rgb(171, 230, 112);}
+  to {background-color: rgb(213, 242, 184);}
+}
+@keyframes right_nothover_change_color {
+  from {background-color: rgb(213, 242, 184);}
+  to {background-color: rgb(171, 230, 112);}
+}
+@keyframes hover_change_color {
+  from {background-color: rgb(255, 255, 255);
+    box-shadow: none;}
+  to {background-color: rgb(230, 230, 230);
+    box-shadow: 0 5px 7px 0px rgba(50, 50, 50, 0.3);}
+}
+@keyframes nothover_change_color {
+  from {background-color: rgb(230, 230, 230);
+    box-shadow: 0 5px 7px 0px rgba(50, 50, 50, 0.3);}
+  to {background-color: rgb(255, 255, 255);
+    box-shadow: none;}
+}
+@keyframes textarea_click {
+  from {background-color: rgb(230, 230, 230);}
+  to {background-color: rgb(255, 255, 255);}
+}
+@keyframes textarea_unclick {
+  from {background-color: rgb(255, 255, 255);}
+  to {background-color: rgb(230, 230, 230);}
+}
+@font-face {
+/*    default font*/
+    font-family: "SanBold";
+    src: url("../fonts/SourceHanSansK-Bold.otf");
+}
+@font-face {
+/*    default font*/
+    font-family: "SanMedium";
+    src: url("../fonts/SourceHanSansK-Medium.otf");
+}
+@font-face {
+/*    default font*/
+    font-family: "SanNormal";
+    src: url("../fonts/SourceHanSansK-Normal.otf");
+}
+@font-face {
+/*    default font*/
+    font-family: "SanLight";
+    src: url("../fonts/SourceHanSansK-Light.otf");
+}
+
+@media (hover: none) and (pointer: coarse) {
+    button {
+        cursor: default;
+    }
+}

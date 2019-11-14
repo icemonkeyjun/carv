@@ -1,0 +1,112 @@
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: gray;
+    flex-direction: column;
+}
+
+#title {
+    height: 80px;
+    margin-bottom: 15px;
+    margin-right: 20px;
+}
+
+#mainDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#BOX {
+    margin: 13px;
+}
+
+a {
+    margin: 5px;
+}
+
+button {
+    cursor: pointer;
+    text-transform: uppercase;
+    overflow: hidden;
+    position: relative;
+    outline: none;
+    border: none;
+    
+    width: 150px;
+    height: 60px;
+    padding: 0;
+    margin: 3px;
+    
+    font-size: 25px;
+    font-family: SanBold;
+    
+    color: rgb(80, 80, 80);
+    background-color: rgb(255, 255, 255);
+    border-radius: 10px;
+
+}
+button .ripple {
+    border-radius: 50%;
+    background-color: rgba(180, 180, 180, 0.7);
+    position: absolute;
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+}
+button:hover {
+    animation-name: hover_change_color;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+}
+button:not(hover) { 
+    animation-name: nothover_change_color;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+@keyframes hover_change_color {
+  from {background-color: rgb(255, 255, 255);
+    box-shadow: none;}
+  to {background-color: rgb(230, 230, 230);
+    box-shadow: 0 5px 7px 0px rgba(50, 50, 50, 0.3);}
+}
+@keyframes nothover_change_color {
+  from {background-color: rgb(230, 230, 230);
+    box-shadow: 0 5px 7px 0px rgba(50, 50, 50, 0.3);}
+  to {background-color: rgb(255, 255, 255);
+    box-shadow: none;}
+}
+@font-face {
+/*    default font*/
+    font-family: "SanBold";
+    src: url("fonts/SourceHanSansK-Bold.otf");
+}
+@font-face {
+/*    default font*/
+    font-family: "SanMedium";
+    src: url("fonts/SourceHanSansK-Medium.otf");
+}
+@font-face {
+/*    default font*/
+    font-family: "SanNormal";
+    src: url("fonts/SourceHanSansK-Normal.otf");
+}
+@font-face {
+/*    default font*/
+    font-family: "SanLight";
+    src: url("fonts/SourceHanSansK-Light.otf");
+}
+
+@media (hover: none) and (pointer: coarse) {
+    button {
+        cursor: default;
+    }
+}

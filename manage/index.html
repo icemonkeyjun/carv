@@ -1,0 +1,153 @@
+<html>
+    <head>
+        <title>명함 복습</title>
+        <meta charset="utf-8">
+        <link rel='icon' href='../images/favicon.png' type='image/x-icon'/ >
+        <link rel="stylesheet" type="text/css" href="style.css?ver33333333">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="../fontello/fontello-74bdc3ba/css/fontello.css">
+        <link rel="stylesheet" type="text/css" href="../fontello/fontello-b0c583aa/css/fontello.css">
+    </head>
+    
+    <body>
+        <header>
+            <button class="button" id="returnButton" onclick="window.location.href = document.location.origin + '/card'"><img src="../images/return.svg" style="height: 20px;"></button>
+            <input class="wave-type" type="text" placeholder="검색" id="searchBox" onkeyup="search();">
+            <button class="button" id="addingButton" onclick="window.location.href = document.location.origin + '/card/adding'"><img src="../images/plus.png" style="height: 20px;"></button>
+        </header>
+        <article>
+            <div id="loading">
+                <div class="lds-ripple"><div></div><div></div></div>
+            </div>
+            <div id="cardContainer">
+                <!--cards here
+                            <div class="card">
+                                <span>a
+                                <span>b
+                                <span>history
+                                <div class="etc">
+                                    <span>subject
+                                    <span>elapsed_time
+                                    <span>left_days
+                                </div>
+                            </div>
+-->
+                <ul id="cardContainerUL">
+                    
+                </ul>
+            </div>
+        </article>
+    </body>
+    <script>
+        socket = new WebSocket("ws://125.180.32.159:7404");
+        
+        card_list = [];
+        socket.onmessage = function(event) {
+            var recv_data = decodeURIComponent(event.data);
+            var recv_json = eval("(" + recv_data + ")");
+            if (recv_json["type"] === "card_list") {
+                
+                if (recv_json["end"] === "false") {
+                    // 또 요청
+                    card_list.push.apply(card_list, recv_json["card_list"]);
+                    snd(JSON.stringify({"type": "request_card_list", "starting_point": recv_json["starting_point"] + 1}));
+                } else {
+                    card_list.push.apply(card_list, recv_json["card_list"]);
+                    card_list.sort(function(a, b) {
+                      return Number(a["left_days"].replace("일 후", "").replace("오늘","0")) - Number(b["left_days"].replace("일 후", "").replace("오늘","0"));
+                    });
+                    for (i=0; i<card_list.length; i++) {
+                        var a = card_list[i]["a"];
+                        var b = card_list[i]["b"];
+                        var history = card_list[i]["history"];
+                        var subject = card_list[i]["subject"]
+                        var elapsed_time = card_list[i]["elapsed_time"];
+                        var left_days = card_list[i]["left_days"];
+                        var card = document.createElement("li");
+                        card.onfocus = function(){alert('asdf')};
+                        document.getElementById("cardContainerUL").appendChild(card);
+                        card.className = "card";
+                        var content_list = [a, b, history];
+                        var class_list = ["a", "b", "history"];
+                        for (i2=0; i2<content_list.length; i2++) {
+                            var current = content_list[i2]
+                            var current_class = class_list[i2]
+                            var span = document.createElement("p");
+                            card.appendChild(span);
+                            span.textContent = current;
+                            span.className = [current_class]
+                            if (current_class === "history" && current.length > 22) {
+                                span.style.fontSize = "0.5rem";
+                            }
+                        }
+                        var etc = document.createElement("div");
+                        card.appendChild(etc);
+                        etc.className = "etc";
+                        var content_list = [subject, elapsed_time, left_days];
+                        var class_list = ["subject", "elapsed_time", "left_days"];
+                        for (i2=0; i2<content_list.length; i2++) {
+                            var current = content_list[i2]
+                            var current_class = class_list[i2]
+                            var span = document.createElement("p");
+                            etc.appendChild(span);
+                            span.textContent = current;
+                            span.className = [current_class];
+                            if (current_class === "subject" && current.length > 4) {
+                                span.style.fontSize = "0.5rem";
+                            } else if (current_class === "left_days" && current.length > 6) {
+                                span.style.fontSize = "0.5rem";
+                            }
+                        }
+                    }
+                    document.getElementById("searchBox").placeholder = "검색 (" + document.getElementsByClassName("card").length.toString() + "개의 카드)";
+                    document.getElementById("loading").style.display = "none";
+                }
+            }
+        }
+
+        // websocket에 send
+        function snd(str) {
+            socket.send(encodeURIComponent(str));
+        }
+        
+        // 연결되자마자 card list 요청
+        socket.onopen = function(event) {
+            snd(JSON.stringify({"type": "request_card_list", "starting_point": 0}));
+        }
+        
+        function adding() {
+            var a = document.getElementById("questionInput").value.replace("\n", "");
+            var b = document.getElementById("answerInput").value.replace("\n", "");
+            var history = document.getElementById("historyInput").value.replace("\n", "");
+            var subject = document.getElementById("subject");
+            snd(JSON.stringify({"type": "adding_card", "a": a, "b": b, "subject": subject.options[subject.selectedIndex].innerText, "history": history}));
+            document.getElementById("questionInput").value = "";
+            document.getElementById("answerInput").value = "";
+            document.getElementById("historyInput").value = "";
+            document.getElementById("questionInput").select();
+        }
+        
+        function search() {
+            var keyword = replaceAll(document.getElementById("searchBox").value, " ", "");
+            var cards = document.getElementsByClassName("card");
+            for (i=0; i<cards.length; i++) {
+                if (replaceAll(cards[i].textContent, " ", "").includes(keyword)) {
+                    cards[i].style.display = "inline-block";
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
+        
+        function editCard() {
+            snd(JSON.stringify({"type": "edit_card", "org": {"a":"ahni", "b":"아니", "history":"OOXO", "subject":"영단어"}, "target":"a", "to":"wowAhni"}));
+        }
+        
+        function replaceAll(str, searchStr, replaceStr) {
+            return str.split(searchStr).join(replaceStr);
+        }
+        
+        
+    </script>
+    <script type="text/javascript" src="../button-design.min.js"></script>
+</html>

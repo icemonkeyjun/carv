@@ -1,0 +1,89 @@
+<html>
+    <head>
+        <title>명함 복습</title>
+        <meta charset="utf-8">
+        <link rel='icon' href='../images/favicon.png' type='image/x-icon'/ >
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="style.css?ver123333332">
+        <link rel="stylesheet" type="text/css" href="../fontello/fontello-74bdc3ba/css/fontello.css">
+    </head>
+    
+    <body>
+        <article>
+            <select id="subject">
+                <option value="영단어" selected>영단어</option>
+                <option value="한문">한문</option>
+                <option value="과학">과학</option>
+                <option value="기가">기가</option>
+                <option value="사회">사회</option>
+            </select>
+            <textarea name="Question" placeholder="문제" maxlength="300" id="questionInput" cols="70" rows="1" oninput="if (this.value.includes('\n')) {adding()}" autofocus></textarea>
+            <textarea name="Answer" placeholder="정답" maxlength="300" id="answerInput" cols="70" rows="1" oninput="if (this.value.includes('\n')) {adding()}"></textarea>
+            <textarea name="History" placeholder="기록 (건들지 마세요.)" maxlength="300" id="historyInput" cols="70" rows="1" oninput="if (this.value.includes('\n')) {adding()}"></textarea>
+            <div id="buttons">
+                <button id="addCard" onclick="adding()"><span class="icon-plus"></span>카드 추가</button>
+                <button class="button" id="returnButton" onclick="window.location.href = document.location.origin + '/card'"><img src="../images/return.svg" style="height: 20px;"></button>
+            </div>
+        </article>
+    </body>
+    <script>
+        socket = new WebSocket("ws://125.180.32.159:7404");
+        
+        socket.onmessage = function(event) {
+            var recv_data = decodeURIComponent(event.data);
+            var recv_json = eval("(" + recv_data + ")");
+            if (recv_json["type"] === "next_card" && recv_json["index_full"] === "true") {
+                // next_card가 더 이상 없을 때
+                document.getElementById("card").style.display = "none";
+            } else if (recv_json["type"] === "next_card") {
+                // next_card
+                flip_reset();
+                ele = document.getElementsByClassName("round");
+                for (var i in ele) {
+                    ele[i].textContent = recv_json["round"]
+                }
+                ele = document.getElementsByClassName("subject");
+                for (var i in ele) {
+                    ele[i].textContent = recv_json["subject"]
+                }
+                ele = document.getElementsByClassName("question");
+                for (var i in ele) {
+                    ele[i].textContent = recv_json["a"]
+                }
+                ele = document.getElementsByClassName("history");
+                for (var i in ele) {
+                    ele[i].textContent = recv_json["history"]
+                }
+                ele = document.getElementsByClassName("answer");
+                for (var i in ele) {
+                    ele[i].textContent = recv_json["b"]
+                }
+            }
+        }
+
+        // websocket에 send
+        function snd(str) {
+            socket.send(encodeURIComponent(str));
+        }
+        
+        // 연결되자마자 next_card 요청
+        socket.onopen = function(event) {
+//            snd(JSON.stringify({"type": "request_next_card"}));
+        }
+        
+        function adding() {
+            var a = document.getElementById("questionInput").value.replace("\n", "");
+            var b = document.getElementById("answerInput").value.replace("\n", "");
+            var history = document.getElementById("historyInput").value.replace("\n", "");
+            var subject = document.getElementById("subject");
+            snd(JSON.stringify({"type": "adding_card", "a": a, "b": b, "subject": subject.options[subject.selectedIndex].innerText, "history": history}));
+            document.getElementById("questionInput").value = "";
+            document.getElementById("answerInput").value = "";
+            document.getElementById("historyInput").value = "";
+            document.getElementById("questionInput").select();
+        }
+        
+        
+    </script>
+    <script type="text/javascript" src="../button-design.min.js"></script>
+</html>
